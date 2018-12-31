@@ -41,19 +41,19 @@ ylabel('Amplitude Response')
 N = 135;
 b = firpm(N-1, theta, lpFilt);
 [h,w] = freqz(b,1,512);
-figure(2)
-plot(theta,lpFilt, w/pi,(abs(h)));
+figure(2);
+plot(w/pi,db(abs(h)));
 h_ripple = h;
 hold on;
 xlim([ 0 1 ])
 title(['Equiripple Remez lowpass polyphase filter, Order = ' num2str(N)]) 
 xlabel('\theta [\pi rads]')
 ylabel('Amplitude Response')
-legend({'Ideal', 'Equirriple'})
+legend({'Equirriple'})
 
 polyPhaseEquiripple=cell(1,L);
 
-figure(3)
+figure(3);
 
 legendPol = {};
 for i=0:L-1
@@ -165,6 +165,10 @@ plot(t_new, x_n,'-', 'LineWidth', 1.5);
 hold on;
 scatter(t_new, x_n);
 scatter(t_new_y, y_m);
+xlim([0, 5e-3]);
+title('x[n] and y[m]');
+legend({'x[n]', 'y[m]'});
+
 
 %% Q2  Section 2
 
@@ -183,17 +187,32 @@ for branch = 0:L-1
     
 end
 
-figure(9)
+figure(9);
 
 plot(y_m, '-', 'LineWidth', 1.5);
 hold on;
 plot(y_hat, '-', 'LineWidth', 1.5);
 xlim([1 512])
+title('y[m] and $\hat{y}[m]$','Interpreter','latex');
+legend({'y[m]','$\hat{y}[m]$'},'Interpreter','latex');
 
 corrEq = xcorr(y_hat, y_m);
 [~,tmp] = max(corrEq);
 delay_Eq = mod(tmp,y_length);
-estD = 7;
+estD = delay_Eq;
+
+[minY_m,~] = min(y_m);
+[minY_eq,~] = min(y_hat);
+[maxY_m,~] = max(y_m);
+[maxY_eq,~] = max(y_hat);
+
+shifted_eq = circshift(y_m, estD);
+tmp = shifted_eq(1:length(y_m));
+diffY_Eq = y_m - tmp;
+figure(10)
+plot(diffY_Eq, '-', 'LineWidth', 1.5);
+title('Equiripple difference y[m] and $\hat{y}[m]$','Interpreter','latex');
+SE_eq = sum((tmp - y_m).^2);
 
 
 %% Q2 Section 3
@@ -212,15 +231,30 @@ for branch = 0:L-1
     
 end
 
-figure(10)
+figure(11)
 
 plot(y_m, '-', 'LineWidth', 1.5);
 hold on;
 plot(y_hat_ls, '-', 'LineWidth', 1.5);
+title('y[m] and $\hat{y}[m]$','Interpreter','latex');
+legend({'y[m]','$\hat{y}[m]$'},'Interpreter','latex');
 xlim([1 512])
 
 corrLS = xcorr(y_hat_ls, y_m);
 [~,tmp] = max(corrLS);
-delay_LS = mod(tmp,y_length);
+delay_Eq = mod(tmp,y_length);
+estD = delay_Eq;
+[minY_m,~] = min(y_m);
+[minY_LS,~] = min(y_hat_ls);
+[maxY_m,~] = max(y_m);
+[maxY_LS,~] = max(y_hat_ls);
+
+shifted_eq = circshift(y_m, estD);
+tmp = shifted_eq(1:length(y_m));
+diffY_LS = y_m - tmp;
+figure(12)
+plot(diffY_LS, '-', 'LineWidth', 1.5);
+title('LS difference y[m] and $\hat{y}[m]$','Interpreter','latex');
+SE_LS = sum((tmp - y_m).^2);
 
 
