@@ -19,10 +19,14 @@ fstop = 1.3/L;
 fpass = 0.7/L;
 
 
-theta = 0:0.001:1;
-transition = fstop - fpass;
-line = (-1/transition)+fstop/transition;
-lpFilt = (theta < fpass)*L + L*(theta > fpass & theta < fstop).*(-1/transition*theta+fstop/transition);
+% theta = 0:0.001:1;
+% transition = fstop - fpass;
+% line = (-1/transition)+fstop/transition;
+% lpFilt = (theta < fpass)*L + L*(theta > fpass & theta < fstop).*(-1/transition*theta+fstop/transition);
+
+theta = [0 fpass fstop 1];
+lpFilt = [9 9 0 0];
+
 figure(1)
 plot(theta, (lpFilt),'-', 'LineWidth', 1.5);
 xlim([ 0 1 ])
@@ -34,8 +38,8 @@ ylabel('Amplitude Response')
 %% Section 2 
 
 % equiripple remez
-N = 100;
-b = firpm(N-1, theta(1:end-1), lpFilt(1:end-1));
+N = 135;
+b = firpm(N-1, theta, lpFilt);
 [h,w] = freqz(b,1,512);
 figure(2)
 plot(theta,lpFilt, w/pi,(abs(h)));
@@ -83,8 +87,8 @@ ylabel('Magnitude (dB)')
 
 % LS
 
-N = 100;
-b = firls(N-1, theta(1:end-1), lpFilt(1:end-1));
+N = 135;
+b = firls(N-1, theta, lpFilt);
 [h,w] = freqz(b,1,512);
 h_ls = h;
 figure(5)
