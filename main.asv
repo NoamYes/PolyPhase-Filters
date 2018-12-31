@@ -39,13 +39,15 @@ b = firpm(N-1, theta(1:end-1), lpFilt(1:end-1));
 [h,w] = freqz(b,1,512);
 figure(2)
 plot(theta,lpFilt, w/pi,(abs(h)));
+h_ripple = h;
 hold on;
 xlim([ 0 1 ])
 title(['Equiripple Remez lowpass polyphase filter, Order = ' num2str(N)]) 
 xlabel('\theta [\pi rads]')
 ylabel('Amplitude Response')
+legend({'Ideal', 'Equirriple'})
 
-Phases_Mat_coeffs = zeros(L,N);
+polyPhaseEquiripple=cell(1,L);
 
 figure(3)
 
@@ -53,6 +55,7 @@ legendPol = {};
 for i=0:L-1
     %Phases_Mat_coeffs(i+1,:) = circshift(b, i);
     shifted = circshift(b, i);
+    polyPhaseEquiripple{i+1} = shifted(1:L:end);
     grpdelay(shifted(1:L:end))
     legendPol{end+1} = ['Pol ' num2str(i)];
     hold on;
@@ -83,21 +86,26 @@ ylabel('Magnitude (dB)')
 N = 100;
 b = firls(N-1, theta(1:end-1), lpFilt(1:end-1));
 [h,w] = freqz(b,1,512);
-figure(2)
-plot(theta,lpFilt, w/pi,10*log10(abs(h)));
+h_ls = h;
+figure(5)
+plot(w/pi,10*log10(abs(h_ls)));
+hold on;
+plot(w/pi,10*log10(abs(h_ripple)));
 xlim([ 0 1 ])
-title(['LS lowpass polyphase filter, Order = ' num2str(N)]) 
+title(['LS and Equirriple polyphase filter, Order = ' num2str(N)]) 
 xlabel('\theta [\pi rads]')
 ylabel('Amplitude Response')
+legend({'LS', 'Equiripple'});
 
-Phases_Mat_coeffs = zeros(L,N);
+polyPhaseLS = cell(1,L);
 
-figure(5)
+figure(6)
 
 legendPol = {};
 for i=0:L-1
     %Phases_Mat_coeffs(i+1,:) = circshift(b, i);
     shifted = circshift(b, i);
+    polyPhaseLS{i+1} = shifted(1:L:end);
     grpdelay(shifted(1:L:end))
     legendPol{end+1} = ['Pol ' num2str(i)];
     hold on;
@@ -105,8 +113,7 @@ end
 legend(legendPol);
 ylim([-10 20]);
 title(['Phase Delays of polyphase filters, LS, Order = ' num2str(N)])
-
-figure(6) 
+figure(7) 
 legendPol = {};
 for i=0:L-1
     %Phases_Mat_coeffs(i+1,:) = circshift(b, i);
@@ -120,3 +127,41 @@ legend(legendPol);
 title(['Magnitude Response of polyphase filters, LS, Order = ' num2str(N)])
 xlabel('Normalized Frequency (\times\pi rad/sample)')
 ylabel('Magnitude (dB)')
+
+
+
+
+
+
+% this is a code for wet 3 Q2 of DSP
+
+Fs = 8000; % original FS
+Fs_y = 72000;
+
+%% Q2 Section 1
+t = linspace(0,pi,1000);
+f1 = 1000;
+f2 = 2000;
+f3 = 3000;
+phi1 = rand(1)*2*pi;
+phi2 = rand(1)*2*pi;
+phi3 = rand(1)*2*pi;
+x = cos(2*pi*f1*t + phi1) + cos(2*pi*f2*t + phi2) + cos(2*pi*f3*t + phi3);
+
+Ts = 1/Fs;
+t_new = linspace(0, 511*Ts, 512);
+x_n = cos(2*pi*f1*t_new + phi1) + cos(2*pi*f2*t_new + phi2) + cos(2*pi*f3*t_new + phi3);
+
+Ts_y = 1/Fs_y;
+t_new_y = 0:Ts_y:511*Ts;
+y_m = cos(2*pi*f1*t_new_y + phi1) + cos(2*pi*f2*t_new_y + phi2) + cos(2*pi*f3*t_new_y + phi3);
+
+figure(1);
+plot(t_new, x_n,'-', 'LineWidth', 1.5);
+hold on;
+scatter(t_new, x_n);
+scatter(t_new_y, y_m);
+
+%% Q2  Section 2
+
+

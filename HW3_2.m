@@ -4,12 +4,12 @@ clear all;
 clc;
 close all;
 
-% this is a code for wet 3 of DSP
+% this is a code for wet 3 Q2 of DSP
 
 Fs = 8000; % original FS
 Fs_y = 72000;
 
-%% Section 1
+%% Q2 Section 1
 t = linspace(0,pi,1000);
 f1 = 1000;
 f2 = 2000;
@@ -33,6 +33,6 @@ hold on;
 scatter(t_new, x_n);
 scatter(t_new_y, y_m);
 
-%% Section 2
+%% Q2  Section 2
 
 
