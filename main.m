@@ -19,10 +19,13 @@ fstop = 1.3/L;
 fpass = 0.7/L;
 
 
-theta = 0:0.001:1;
+%theta = 0:0.001:1;
 transition = fstop - fpass;
 line = (-1/transition)+fstop/transition;
-lpFilt = (theta < fpass)*L + L*(theta > fpass & theta < fstop).*(-1/transition*theta+fstop/transition);
+%lpFilt = (theta < fpass)*L + L*(theta > fpass & theta < fstop).*(-1/transition*theta+fstop/transition);
+lpFilt = [9 9 0 0];
+theta = [0 0.7/L 1.3/L 1];
+
 figure(1)
 plot(theta, (lpFilt),'-', 'LineWidth', 1.5);
 xlim([ 0 1 ])
@@ -34,18 +37,19 @@ ylabel('Amplitude Response')
 %% Section 2 
 
 % equiripple remez
-N = 100;
-b = firpm(N-1, theta(1:end-1), lpFilt(1:end-1));
+N = 135;
+b = firpm(N-1, theta, lpFilt);
 [h,w] = freqz(b,1,512);
 figure(2)
-plot(theta,lpFilt, w/pi,(abs(h)));
+% plot(theta,lpFilt, w/pi,10*log10(abs(h)));
+plot(w/pi,20*log10(abs(h)));
 h_ripple = h;
 hold on;
 xlim([ 0 1 ])
 title(['Equiripple Remez lowpass polyphase filter, Order = ' num2str(N)]) 
 xlabel('\theta [\pi rads]')
-ylabel('Amplitude Response')
-legend({'Ideal', 'Equirriple'})
+ylabel('Amplitude Response[dB]')
+legend({'Equirriple'})
 
 polyPhaseEquiripple=cell(1,L);
 
@@ -84,7 +88,7 @@ ylabel('Magnitude (dB)')
 % LS
 
 N = 100;
-b = firls(N-1, theta(1:end-1), lpFilt(1:end-1));
+b = firls(N-1, theta, lpFilt);
 [h,w] = freqz(b,1,512);
 h_ls = h;
 figure(5)
@@ -129,11 +133,7 @@ xlabel('Normalized Frequency (\times\pi rad/sample)')
 ylabel('Magnitude (dB)')
 
 
-
-
-
-
-% this is a code for wet 3 Q2 of DSP
+%% this is a code for wet 3 Q2 of DSP
 
 Fs = 8000; % original FS
 Fs_y = 72000;
@@ -143,24 +143,27 @@ t = linspace(0,pi,1000);
 f1 = 1000;
 f2 = 2000;
 f3 = 3000;
-phi1 = rand(1)*2*pi;
-phi2 = rand(1)*2*pi;
-phi3 = rand(1)*2*pi;
-x = cos(2*pi*f1*t + phi1) + cos(2*pi*f2*t + phi2) + cos(2*pi*f3*t + phi3);
+phi1 = unifrnd(0, 2*pi);
+phi2 = unifrnd(0, 2*pi);
+phi3 = unifrnd(0, 2*pi);
 
 Ts = 1/Fs;
-t_new = linspace(0, 511*Ts, 512);
+t_new = 0:Ts:(511*Ts);
 x_n = cos(2*pi*f1*t_new + phi1) + cos(2*pi*f2*t_new + phi2) + cos(2*pi*f3*t_new + phi3);
 
 Ts_y = 1/Fs_y;
-t_new_y = 0:Ts_y:511*Ts;
+t_new_y = 0:Ts_y:(511*Ts_y);
 y_m = cos(2*pi*f1*t_new_y + phi1) + cos(2*pi*f2*t_new_y + phi2) + cos(2*pi*f3*t_new_y + phi3);
 
 figure(8);
 plot(t_new, x_n,'-', 'LineWidth', 1.5);
+%plot(t, x,'-', 'LineWidth', 1.5);
 hold on;
-scatter(t_new, x_n);
+%scatter(t_new, x_n);
 scatter(t_new_y, y_m);
+title('x(t) sampled in 8khz and 72khz');
+xlim([0, 5e-3])
+legend('x_n 8khz', 'y_m 72khz');
 
 %% Q2  Section 2
 
@@ -179,12 +182,13 @@ for branch = 0:L-1
     
 end
 
-figure(9)
+figure(9);
 
 plot(y_m, '-', 'LineWidth', 1.5);
 hold on;
 plot(y_hat, '-', 'LineWidth', 1.5);
-xlim([1 512])
+xlim([0,512]);
+
 
 %% Q2 Section 3
 % EQUIRIPPLE RECOVERY 
@@ -207,4 +211,4 @@ figure(10)
 plot(y_m, '-', 'LineWidth', 1.5);
 hold on;
 plot(y_hat_ls, '-', 'LineWidth', 1.5);
-xlim([1 512])
+xlim([0,512]);
