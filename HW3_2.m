@@ -24,8 +24,15 @@ t_new = linspace(0, 511*Ts, 512);
 x_n = cos(2*pi*f1*t_new + phi1) + cos(2*pi*f2*t_new + phi2) + cos(2*pi*f3*t_new + phi3);
 
 Ts_y = 1/Fs_y;
-t_new_y = linspace(0, 511*Ts_y, 512);
+t_new_y = 0:Ts_y:511*Ts;
 y_m = cos(2*pi*f1*t_new_y + phi1) + cos(2*pi*f2*t_new_y + phi2) + cos(2*pi*f3*t_new_y + phi3);
 
 figure(1);
 plot(t_new, x_n,'-', 'LineWidth', 1.5);
+hold on;
+scatter(t_new, x_n);
+scatter(t_new_y, y_m);
+
+%% Section 2
+
+
