@@ -190,8 +190,22 @@ hold on;
 plot(y_hat, '-', 'LineWidth', 1.5);
 xlim([1 512])
 
+corrEq = xcorr(y_hat, y_m);
+[~,tmp] = max(corrEq);
+delay_Eq = mod(tmp,y_length);
+estD = delay_Eq;
+[minY_m,~] = min(y_m);
+[minY_eq,~] = min(y_hat);
+[maxY_m,~] = max(y_m);
+[maxY_eq,~] = max(y_hat);
+
+shifted_eq = circshift(y_m, estD);
+tmp = shifted_eq(1:length(y_m));
+SE_eq = sum((tmp - y_m).^2);
+
+
 %% Q2 Section 3
-% EQUIRIPPLE RECOVERY 
+% LS RECOVERY 
 
 u = cell(1,L);
 y_length = length(upsample(filter(polyPhaseLS{1},1,x_n),L));
@@ -212,3 +226,18 @@ plot(y_m, '-', 'LineWidth', 1.5);
 hold on;
 plot(y_hat_ls, '-', 'LineWidth', 1.5);
 xlim([1 512])
+
+corrLS = xcorr(y_hat_ls, y_m);
+[~,tmp] = max(corrLS);
+delay_Eq = mod(tmp,y_length);
+estD = delay_Eq;
+[minY_m,~] = min(y_m);
+[minY_LS,~] = min(y_hat_ls);
+[maxY_m,~] = max(y_m);
+[maxY_LS,~] = max(y_hat_ls);
+
+shifted_eq = circshift(y_m, estD);
+tmp = shifted_eq(1:length(y_m));
+SE_LS = sum((tmp - y_m).^2);
+
+

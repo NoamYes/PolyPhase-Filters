@@ -26,6 +26,7 @@ fpass = 0.7/L;
 
 theta = [0 fpass fstop 1];
 lpFilt = [9 9 0 0];
+
 figure(1)
 plot(theta, (lpFilt),'-', 'LineWidth', 1.5);
 xlim([ 0 1 ])
@@ -38,7 +39,7 @@ ylabel('Amplitude Response')
 
 % equiripple remez
 N = 135;
-b = firpm(N-1, theta(1:end-1), lpFilt(1:end-1));
+b = firpm(N-1, theta, lpFilt);
 [h,w] = freqz(b,1,512);
 figure(2)
 plot(theta,lpFilt, w/pi,(abs(h)));
@@ -87,7 +88,7 @@ ylabel('Magnitude (dB)')
 % LS
 
 N = 135;
-b = firls(N-1, theta(1:end-1), lpFilt(1:end-1));
+b = firls(N-1, theta, lpFilt);
 [h,w] = freqz(b,1,512);
 h_ls = h;
 figure(5)
@@ -189,8 +190,14 @@ hold on;
 plot(y_hat, '-', 'LineWidth', 1.5);
 xlim([1 512])
 
+corrEq = xcorr(y_hat, y_m);
+[~,tmp] = max(corrEq);
+delay_Eq = mod(tmp,y_length);
+estD = 7;
+
+
 %% Q2 Section 3
-% EQUIRIPPLE RECOVERY 
+% LS RECOVERY 
 
 u = cell(1,L);
 y_length = length(upsample(filter(polyPhaseLS{1},1,x_n),L));
@@ -211,3 +218,9 @@ plot(y_m, '-', 'LineWidth', 1.5);
 hold on;
 plot(y_hat_ls, '-', 'LineWidth', 1.5);
 xlim([1 512])
+
+corrLS = xcorr(y_hat_ls, y_m);
+[~,tmp] = max(corrLS);
+delay_LS = mod(tmp,y_length);
+
+
